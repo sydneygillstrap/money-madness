@@ -50,7 +50,7 @@
         const { useState, useEffect } = React;
 
         // --- Game Data: 15 Questions ---
-        const questions = [
+        const questionsData = [
             {
                 id: 1,
                 text: "You found 2 quarters on the sidewalk. How much money did you find?",
@@ -220,33 +220,22 @@
             );
         };
 
-        // --- Coin Workspace Component ---
+        // --- Coin Workspace Component (No Totals) ---
         const CoinWorkspace = () => {
             const [workspaceCoins, setWorkspaceCoins] = useState([]);
-            const [total, setTotal] = useState(0);
-
-            const values = { penny: 1, nickel: 5, dime: 10, quarter: 25 };
 
             const addCoin = (type) => {
                 const newCoins = [...workspaceCoins, { type, id: Date.now() }];
                 setWorkspaceCoins(newCoins);
-                updateTotal(newCoins);
             };
 
             const removeCoin = (idToRemove) => {
                 const newCoins = workspaceCoins.filter(c => c.id !== idToRemove);
                 setWorkspaceCoins(newCoins);
-                updateTotal(newCoins);
             };
 
             const clearAll = () => {
                 setWorkspaceCoins([]);
-                setTotal(0);
-            };
-
-            const updateTotal = (coins) => {
-                const sum = coins.reduce((acc, curr) => acc + values[curr.type], 0);
-                setTotal(sum);
             };
 
             return (
@@ -273,27 +262,40 @@
                             <Coin key={c.id} type={c.type} small onClick={() => removeCoin(c.id)} />
                         ))}
                     </div>
-
-                    {/* Total */}
-                    <div className="mt-2 text-center">
-                        <span className="font-bold text-gray-700">Total in Box: </span>
-                        <span className="text-xl font-bold text-blue-600">{total}¢</span>
-                        <span className="text-sm text-gray-400 ml-2">(${ (total/100).toFixed(2) })</span>
-                    </div>
                 </div>
             );
+        };
+
+        // --- Helper: Shuffle Array ---
+        const shuffleArray = (array) => {
+            let currentIndex = array.length,  randomIndex;
+            // While there remain elements to shuffle.
+            while (currentIndex != 0) {
+                // Pick a remaining element.
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                // And swap it with the current element.
+                [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+            }
+            return array;
         };
 
         // --- Main Game Component ---
         const MoneyMadness = () => {
             const [gameState, setGameState] = useState('start'); 
+            const [gameQuestions, setGameQuestions] = useState(questionsData); // Start with default order, shuffle on play
             const [currentQIndex, setCurrentQIndex] = useState(0);
             const [score, setScore] = useState(0);
             const [feedback, setFeedback] = useState({ isCorrect: false, message: "" });
             
-            const currentQ = questions[currentQIndex];
+            const currentQ = gameQuestions[currentQIndex];
 
             const startGame = () => {
+                // Shuffle questions for a new game
+                const shuffled = shuffleArray([...questionsData]);
+                setGameQuestions(shuffled);
+                
                 setGameState('playing');
                 setCurrentQIndex(0);
                 setScore(0);
@@ -318,7 +320,7 @@
             };
 
             const nextQuestion = () => {
-                if (currentQIndex < questions.length - 1) {
+                if (currentQIndex < gameQuestions.length - 1) {
                     setCurrentQIndex(prev => prev + 1);
                     setGameState('playing');
                 } else {
@@ -371,7 +373,7 @@
                     <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
                         <h1 className="text-6xl mb-4">🏆</h1>
                         <h2 className="text-4xl font-bold text-blue-600 mb-4">Great Job!</h2>
-                        <p className="text-2xl text-gray-700 mb-6">You scored {score} out of {questions.length}!</p>
+                        <p className="text-2xl text-gray-700 mb-6">You scored {score} out of {gameQuestions.length}!</p>
                         <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
                             <p className="text-lg">You are a certified Money Master!</p>
                         </div>
@@ -391,7 +393,7 @@
                     <div className="w-full flex justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-sm border-2 border-green-100">
                         <div className="flex items-center gap-2">
                             <span className="text-2xl">🐷</span>
-                            <span className="font-bold text-green-700">Question {currentQIndex + 1}/{questions.length}</span>
+                            <span className="font-bold text-green-700">Question {currentQIndex + 1}/{gameQuestions.length}</span>
                         </div>
                         <div className="font-bold text-orange-500">Score: {score}</div>
                     </div>
@@ -476,7 +478,7 @@
                         </div>
                     </div>
 
-                    {/* NEW: Coin Workspace for visual help */}
+                    {/* NEW: Coin Workspace for visual help (No Total) */}
                     {gameState === 'playing' && <CoinWorkspace />}
 
                 </div>
