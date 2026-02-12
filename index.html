@@ -3,43 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Money Madness: Adventure Quest</title>
-    <!-- Tailwind CSS for styling -->
+    <title>Money Madness: RPG Edition</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React and ReactDOM -->
+    <!-- React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <!-- Babel for JSX -->
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Confetti for celebrations -->
+    <!-- Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Retro Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
         body {
-            background-color: #f0fdf4; /* Light green bg */
-            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            background-color: #202028; /* Dark RPG background */
+            font-family: 'Press Start 2P', cursive; /* Pixel font */
+            color: white;
+            image-rendering: pixelated;
         }
-        .coin-shadow {
-            box-shadow: 2px 4px 6px rgba(0,0,0,0.2);
+        .pixel-border {
+            box-shadow: 
+                -4px 0 0 0 white,
+                4px 0 0 0 white,
+                0 -4px 0 0 white,
+                0 4px 0 0 white;
+            margin: 4px;
         }
-        .animate-bounce-short {
-            animation: bounce 0.5s infinite;
+        .pixel-btn {
+            box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.5);
         }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(-5%); }
-            50% { transform: translateY(0); }
+        .pixel-btn:active {
+            box-shadow: inset 4px 4px 0px 0px rgba(0,0,0,0.5);
+            transform: translateY(2px);
         }
-        /* Custom scrollbar for coin box */
-        .coin-scroll::-webkit-scrollbar {
-            height: 8px;
+        /* Custom scrollbar */
+        .coin-scroll::-webkit-scrollbar { height: 8px; }
+        .coin-scroll::-webkit-scrollbar-track { background: #333; }
+        .coin-scroll::-webkit-scrollbar-thumb { background: #666; }
+        
+        .animate-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
-        .coin-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-        .coin-scroll::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 4px;
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
         }
     </style>
 </head>
@@ -49,275 +60,122 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- Game Data: Adventure Themed Questions ---
+        // --- Game Data ---
         const questionsData = [
-            {
-                id: 1,
-                text: "Captain Redbeard dropped 2 quarters! How much treasure is that?",
-                visualType: "coins",
-                coins: ["quarter", "quarter"],
-                options: ["25¢", "50¢", "$1.00"],
-                correct: "50¢",
-                hint: "A quarter is 25¢. What is 25 + 25?"
-            },
-            {
-                id: 2,
-                text: "You have 50¢. You buy a Magic Bean for 10¢. What is left?",
-                visualType: "subtraction",
-                start: "50¢",
-                minus: "10¢",
-                options: ["60¢", "40¢", "30¢"],
-                correct: "40¢",
-                hint: "Think: 50 minus 10."
-            },
-            {
-                id: 3,
-                text: "The Robot needs fuel! Add it up: 2 Dimes and 1 Nickel.",
-                visualType: "coins",
-                coins: ["dime", "dime", "nickel"],
-                options: ["25¢", "30¢", "15¢"],
-                correct: "25¢",
-                hint: "10 + 10 + 5 = ?"
-            },
-            {
-                id: 4,
-                text: "You have $1.00. The Goblin steals 60¢! What do you have left?",
-                visualType: "simple",
-                image: "👺",
-                options: ["40¢", "50¢", "60¢"],
-                correct: "40¢",
-                hint: "Count up from 60 to 100."
-            },
-            {
-                id: 5,
-                text: "To cross the Troll Bridge, pay exactly 20¢. Which coins work?",
-                visualType: "text-only",
-                options: ["2 Dimes", "2 Nickels", "1 Quarter"],
-                correct: "2 Dimes",
-                hint: "A dime is 10¢."
-            },
-            {
-                id: 6,
-                text: "Wizard Shop Sale! Potion (30¢) + Wand (20¢). Total cost?",
-                visualType: "items",
-                items: ["🧪 30¢", "🪄 20¢"],
-                options: ["10¢", "40¢", "50¢"],
-                correct: "50¢",
-                hint: "Add 30 + 20."
-            },
-            {
-                id: 7,
-                text: "Piggy Bank Check! You saved 3 pennies and 1 nickel.",
-                visualType: "coins",
-                coins: ["penny", "penny", "penny", "nickel"],
-                options: ["8¢", "4¢", "13¢"],
-                correct: "8¢",
-                hint: "5 + 1 + 1 + 1."
-            },
-            {
-                id: 8,
-                text: "True or False: 100 gold pennies = $1.00?",
-                visualType: "simple",
-                image: "💰",
-                options: ["True", "False"],
-                correct: "True",
-                hint: "Pennies are 1¢ each."
-            },
-            {
-                id: 9,
-                text: "Ice Cream Truck! You have 75¢. Ice cream is 25¢. Change?",
-                visualType: "subtraction",
-                start: "75¢",
-                minus: "25¢",
-                options: ["100¢", "50¢", "25¢"],
-                correct: "50¢",
-                hint: "Think: 3 quarters take away 1 quarter."
-            },
-            {
-                id: 10,
-                text: "Which magic symbol is correct for fifty cents?",
-                visualType: "text-only",
-                options: ["$0.50", "0.50¢", "$50"],
-                correct: "$0.50",
-                hint: "The dollar sign goes in front!"
-            },
-            {
-                id: 11,
-                text: "Rocket Countdown by 10s: 10, 20, 30... what is next?",
-                visualType: "simple",
-                image: "🚀",
-                options: ["35", "40", "50"],
-                correct: "40",
-                hint: "Add one more ten."
-            },
-            {
-                id: 12,
-                text: "School Supply Quest: Pencil (15¢) + Eraser (5¢).",
-                visualType: "items",
-                items: ["✏️ 15¢", "🧼 5¢"],
-                options: ["20¢", "10¢", "25¢"],
-                correct: "20¢",
-                hint: "15 + 5 = ?"
-            },
-            {
-                id: 13,
-                text: "How many quarters to buy a $1.00 toy robot?",
-                visualType: "coins",
-                coins: ["quarter", "quarter", "quarter", "quarter"],
-                options: ["2", "3", "4"],
-                correct: "4",
-                hint: "25, 50, 75, 100."
-            },
-            {
-                id: 14,
-                text: "Hole in your pocket! You had 90¢, but lost a dime.",
-                visualType: "subtraction",
-                start: "90¢",
-                minus: "10¢",
-                options: ["80¢", "100¢", "85¢"],
-                correct: "80¢",
-                hint: "Count back by 10."
-            },
-            {
-                id: 15,
-                text: "Boss Battle! 2 quarters + 5 dimes. Is it enough for $1.00?",
-                visualType: "coins",
-                coins: ["quarter", "quarter", "dime", "dime", "dime", "dime", "dime"],
-                options: ["Yes", "No"],
-                correct: "Yes",
-                hint: "50¢ + 50¢ = ?"
-            }
+            { id: 1, text: "Captain Redbeard dropped 2 quarters! Value?", visualType: "coins", coins: ["quarter", "quarter"], options: ["25¢", "50¢", "$1.00"], correct: "50¢", hint: "25 + 25 = 50" },
+            { id: 2, text: "Magic Bean costs 10¢. You have 50¢. Left?", visualType: "subtraction", start: "50¢", minus: "10¢", options: ["60¢", "40¢", "30¢"], correct: "40¢", hint: "50 - 10" },
+            { id: 3, text: "Robot Fuel: 2 Dimes + 1 Nickel.", visualType: "coins", coins: ["dime", "dime", "nickel"], options: ["25¢", "30¢", "15¢"], correct: "25¢", hint: "10+10+5" },
+            { id: 4, text: "Goblin stole 60¢ from your $1.00! Left?", visualType: "simple", image: "👺", options: ["40¢", "50¢", "60¢"], correct: "40¢", hint: "100 - 60" },
+            { id: 5, text: "Toll is 20¢. Pick the coins.", visualType: "text-only", options: ["2 Dimes", "2 Nickels", "1 Quarter"], correct: "2 Dimes", hint: "10 + 10" },
+            { id: 6, text: "Buy: Potion(30¢) + Wand(20¢).", visualType: "items", items: ["🧪 30¢", "🪄 20¢"], options: ["10¢", "40¢", "50¢"], correct: "50¢", hint: "30 + 20" },
+            { id: 7, text: "Loot: 3 pennies & 1 nickel.", visualType: "coins", coins: ["penny", "penny", "penny", "nickel"], options: ["8¢", "4¢", "13¢"], correct: "8¢", hint: "1+1+1+5" },
+            { id: 8, text: "100 pennies = $1.00?", visualType: "simple", image: "💰", options: ["True", "False"], correct: "True", hint: "Yes!" },
+            { id: 9, text: "Have 75¢. Spent 25¢. Left?", visualType: "subtraction", start: "75¢", minus: "25¢", options: ["100¢", "50¢", "25¢"], correct: "50¢", hint: "75 - 25" },
+            { id: 10, text: "Symbol for fifty cents?", visualType: "text-only", options: ["$0.50", "0.50¢", "$50"], correct: "$0.50", hint: "$ in front" },
+            { id: 11, text: "Pattern: 10, 20, 30...?", visualType: "simple", image: "🚀", options: ["35", "40", "50"], correct: "40", hint: "+10" },
+            { id: 12, text: "Pencil(15¢) + Eraser(5¢).", visualType: "items", items: ["✏️ 15¢", "🧼 5¢"], options: ["20¢", "10¢", "25¢"], correct: "20¢", hint: "15 + 5" },
+            { id: 13, text: "How many quarters in $1.00?", visualType: "coins", coins: ["quarter", "quarter", "quarter", "quarter"], options: ["2", "3", "4"], correct: "4", hint: "4 quarters" },
+            { id: 14, text: "Had 90¢. Lost a dime.", visualType: "subtraction", start: "90¢", minus: "10¢", options: ["80¢", "100¢", "85¢"], correct: "80¢", hint: "90 - 10" },
+            { id: 15, text: "2 quarters + 5 dimes = $1.00?", visualType: "coins", coins: ["quarter", "quarter", "dime", "dime", "dime", "dime", "dime"], options: ["Yes", "No"], correct: "Yes", hint: "50 + 50" }
         ];
 
-        // --- Redemption Data ---
         const redemptionData = {
-            1: { text: "Captain found 2 dimes. How much treasure?", visualType: "coins", coins: ["dime", "dime"], options: ["10¢", "20¢", "30¢"], correct: "20¢", hint: "10 + 10 = ?" },
-            2: { text: "You have 60¢. Magic gum is 10¢. Left?", visualType: "subtraction", start: "60¢", minus: "10¢", options: ["50¢", "70¢", "40¢"], correct: "50¢", hint: "60 minus 10." },
-            3: { text: "Robot needs: 2 nickels and 1 dime.", visualType: "coins", coins: ["nickel", "nickel", "dime"], options: ["15¢", "20¢", "25¢"], correct: "20¢", hint: "5 + 5 + 10 = ?" },
-            4: { text: "You have $1.00. Goblin takes 80¢. Change?", visualType: "simple", image: "👺", options: ["10¢", "20¢", "30¢"], correct: "20¢", hint: "Count up from 80 to 100." },
-            5: { text: "Which coins equal 10¢?", visualType: "text-only", options: ["2 Nickels", "2 Pennies", "2 Dimes"], correct: "2 Nickels", hint: "A nickel is 5¢." },
-            6: { text: "Shop Sale: Milk (40¢) + Cookie (10¢).", visualType: "items", items: ["🥛 40¢", "🍪 10¢"], options: ["40¢", "50¢", "60¢"], correct: "50¢", hint: "40 + 10." },
-            7: { text: "Saved: 2 pennies and 1 dime.", visualType: "coins", coins: ["penny", "penny", "dime"], options: ["12¢", "21¢", "3¢"], correct: "12¢", hint: "1 + 1 + 10." },
-            8: { text: "True or False: 100 pennies = $1.00", visualType: "simple", image: "💰", options: ["True", "False"], correct: "True", hint: "Pennies are 1¢ each." },
-            9: { text: "Have 50¢. Spend 25¢ on stickers. Left?", visualType: "subtraction", start: "50¢", minus: "25¢", options: ["25¢", "35¢", "15¢"], correct: "25¢", hint: "2 quarters minus 1 quarter." },
-            10: { text: "Symbol for twenty-five cents?", visualType: "text-only", options: ["$0.25", "25$", "0.25¢"], correct: "$0.25", hint: "Dollar sign first!" },
-            11: { text: "Blast off! 5, 10, 15...?", visualType: "simple", image: "🚀", options: ["20", "25", "16"], correct: "20", hint: "Add 5 more." },
-            12: { text: "Toy is 25¢. Sticker is 5¢. Total?", visualType: "items", items: ["🧸 25¢", "🏷️ 5¢"], options: ["20¢", "30¢", "35¢"], correct: "30¢", hint: "25 + 5." },
-            13: { text: "How many dimes make $1.00?", visualType: "coins", coins: ["dime", "dime", "dime", "dime"], options: ["4", "10", "100"], correct: "10", hint: "Count by 10s to 100." },
-            14: { text: "Have 70¢. Lose a dime. Left?", visualType: "subtraction", start: "70¢", minus: "10¢", options: ["50¢", "60¢", "80¢"], correct: "60¢", hint: "70 minus 10." },
-            15: { text: "10 dimes equals $1.00?", visualType: "coins", coins: ["dime", "dime", "dime", "dime", "dime"], options: ["Yes", "No"], correct: "Yes", hint: "10 tens make 100." }
+            1: { text: "Found 2 dimes. Value?", visualType: "coins", coins: ["dime", "dime"], options: ["10¢", "20¢", "30¢"], correct: "20¢", hint: "10+10" },
+            2: { text: "Have 60¢. Spent 10¢. Left?", visualType: "subtraction", start: "60¢", minus: "10¢", options: ["50¢", "70¢", "40¢"], correct: "50¢", hint: "60-10" },
+            3: { text: "Need: 2 nickels + 1 dime.", visualType: "coins", coins: ["nickel", "nickel", "dime"], options: ["15¢", "20¢", "25¢"], correct: "20¢", hint: "5+5+10" },
+            4: { text: "Have $1.00. Lost 80¢.", visualType: "simple", image: "👺", options: ["10¢", "20¢", "30¢"], correct: "20¢", hint: "100-80" },
+            5: { text: "Make 10¢.", visualType: "text-only", options: ["2 Nickels", "2 Pennies", "2 Dimes"], correct: "2 Nickels", hint: "5+5" },
+            6: { text: "Milk(40¢) + Cookie(10¢).", visualType: "items", items: ["🥛 40¢", "🍪 10¢"], options: ["40¢", "50¢", "60¢"], correct: "50¢", hint: "40+10" },
+            7: { text: "Saved: 2 pennies + 1 dime.", visualType: "coins", coins: ["penny", "penny", "dime"], options: ["12¢", "21¢", "3¢"], correct: "12¢", hint: "1+1+10" },
+            8: { text: "100 pennies = $1.00?", visualType: "simple", image: "💰", options: ["True", "False"], correct: "True", hint: "Yes" },
+            9: { text: "Have 50¢. Spent 25¢.", visualType: "subtraction", start: "50¢", minus: "25¢", options: ["25¢", "35¢", "15¢"], correct: "25¢", hint: "50-25" },
+            10: { text: "Symbol for 25 cents?", visualType: "text-only", options: ["$0.25", "25$", "0.25¢"], correct: "$0.25", hint: "$ first" },
+            11: { text: "5, 10, 15...?", visualType: "simple", image: "🚀", options: ["20", "25", "16"], correct: "20", hint: "+5" },
+            12: { text: "Toy(25¢) + Sticker(5¢).", visualType: "items", items: ["🧸 25¢", "🏷️ 5¢"], options: ["20¢", "30¢", "35¢"], correct: "30¢", hint: "25+5" },
+            13: { text: "Dimes in $1.00?", visualType: "coins", coins: ["dime", "dime", "dime", "dime"], options: ["4", "10", "100"], correct: "10", hint: "Count by 10" },
+            14: { text: "Have 70¢. Lost 10¢.", visualType: "subtraction", start: "70¢", minus: "10¢", options: ["50¢", "60¢", "80¢"], correct: "60¢", hint: "70-10" },
+            15: { text: "10 dimes = $1.00?", visualType: "coins", coins: ["dime", "dime", "dime", "dime", "dime"], options: ["Yes", "No"], correct: "Yes", hint: "Yes" }
         };
 
-        // --- Coin Components ---
         const Coin = ({ type, onClick, small }) => {
             const sizeClass = small 
-                ? (type === 'quarter' ? 'w-12 h-12 text-sm' : type === 'dime' ? 'w-8 h-8 text-xs' : type === 'nickel' ? 'w-10 h-10 text-xs' : 'w-9 h-9 text-xs')
-                : (type === 'quarter' ? 'w-16 h-16 text-lg' : type === 'dime' ? 'w-10 h-10 text-sm' : type === 'nickel' ? 'w-14 h-14 text-base' : 'w-12 h-12 text-base');
+                ? (type === 'quarter' ? 'w-10 h-10' : 'w-8 h-8')
+                : (type === 'quarter' ? 'w-16 h-16' : type === 'dime' ? 'w-10 h-10' : 'w-12 h-12');
 
             const styles = {
-                penny: "bg-orange-600 border-orange-800 text-white",
-                nickel: "bg-gray-300 border-gray-500 text-gray-700",
-                dime: "bg-gray-300 border-gray-500 text-gray-700",
-                quarter: "bg-gray-300 border-gray-500 text-gray-700"
+                penny: "bg-orange-700 border-orange-900 text-orange-100",
+                nickel: "bg-gray-400 border-gray-600 text-white",
+                dime: "bg-gray-300 border-gray-500 text-gray-800",
+                quarter: "bg-gray-200 border-gray-500 text-gray-900"
             };
             
-            const labels = {
-                penny: "1¢",
-                nickel: "5¢",
-                dime: "10¢",
-                quarter: "25¢"
-            };
+            const labels = { penny: "1¢", nickel: "5¢", dime: "10¢", quarter: "25¢" };
 
             return (
                 <div 
                     onClick={onClick}
-                    className={`${styles[type]} ${sizeClass} rounded-full border-4 flex items-center justify-center font-bold coin-shadow m-1 transform hover:scale-110 active:scale-95 transition-all cursor-pointer select-none`}
-                    title={`Add ${type}`}
+                    className={`${styles[type]} ${sizeClass} rounded-full border-4 flex items-center justify-center font-bold m-1 transform hover:scale-110 active:scale-90 transition-all cursor-pointer select-none shadow-lg text-[10px] md:text-xs`}
                 >
                     {labels[type]}
                 </div>
             );
         };
 
-        // --- Coin Workspace Component ---
         const CoinWorkspace = () => {
             const [workspaceCoins, setWorkspaceCoins] = useState([]);
 
-            const addCoin = (type) => {
-                const newCoins = [...workspaceCoins, { type, id: Date.now() }];
-                setWorkspaceCoins(newCoins);
-            };
-
-            const removeCoin = (idToRemove) => {
-                const newCoins = workspaceCoins.filter(c => c.id !== idToRemove);
-                setWorkspaceCoins(newCoins);
-            };
-
-            const clearAll = () => {
-                setWorkspaceCoins([]);
-            };
+            const addCoin = (type) => setWorkspaceCoins([...workspaceCoins, { type, id: Date.now() }]);
+            const removeCoin = (id) => setWorkspaceCoins(workspaceCoins.filter(c => c.id !== id));
+            const clearAll = () => setWorkspaceCoins([]);
 
             return (
-                <div className="bg-yellow-50 rounded-xl border-4 border-yellow-200 p-4 w-full h-full animate-fade-in-up shadow-md">
-                    <div className="flex justify-between items-center mb-2">
-                        <h3 className="font-bold text-yellow-800 text-lg">🛠️ Coin Helper Tool</h3>
-                        <button onClick={clearAll} className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200">Clear</button>
+                <div className="bg-gray-800 border-4 border-gray-500 p-4 w-full h-full rounded-lg shadow-xl">
+                    <div className="flex justify-between items-center mb-2 border-b-2 border-gray-600 pb-2">
+                        <h3 className="text-yellow-400 text-xs md:text-sm uppercase tracking-widest">🎒 Inventory</h3>
+                        <button onClick={clearAll} className="text-[10px] bg-red-600 text-white px-2 py-1 rounded hover:bg-red-500 pixel-btn">RESET</button>
                     </div>
-                    
-                    {/* Coin Bank */}
-                    <div className="flex justify-center gap-2 mb-4 bg-white p-2 rounded-lg border border-yellow-100">
+                    <div className="flex justify-center gap-2 mb-4 bg-gray-900 p-2 rounded border-2 border-gray-700">
                         <Coin type="penny" small onClick={() => addCoin('penny')} />
                         <Coin type="nickel" small onClick={() => addCoin('nickel')} />
                         <Coin type="dime" small onClick={() => addCoin('dime')} />
                         <Coin type="quarter" small onClick={() => addCoin('quarter')} />
                     </div>
-
-                    <p className="text-center text-sm text-gray-500 mb-2">👇 Click coins above to add.</p>
-
-                    {/* Drop Zone */}
-                    <div className="min-h-[200px] bg-white rounded-xl border-2 border-dashed border-gray-300 p-2 flex flex-wrap content-start items-start coin-scroll">
-                        {workspaceCoins.length === 0 && <span className="w-full text-center text-gray-300 italic mt-8">Your coins will appear here...</span>}
-                        {workspaceCoins.map((c) => (
-                            <Coin key={c.id} type={c.type} small onClick={() => removeCoin(c.id)} />
-                        ))}
+                    <div className="min-h-[200px] bg-gray-900 rounded border-2 border-dashed border-gray-700 p-2 flex flex-wrap content-start items-start coin-scroll">
+                        {workspaceCoins.length === 0 && <span className="w-full text-center text-gray-600 text-[10px] mt-8">Items go here...</span>}
+                        {workspaceCoins.map((c) => <Coin key={c.id} type={c.type} small onClick={() => removeCoin(c.id)} />)}
                     </div>
                 </div>
             );
         };
 
-        // --- Helper: Shuffle Array ---
-        const shuffleArray = (array) => {
-            let currentIndex = array.length,  randomIndex;
-            while (currentIndex != 0) {
-                randomIndex = Math.floor(Math.random() * currentIndex);
-                currentIndex--;
-                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-            }
-            return array;
-        };
+        const shuffleArray = (arr) => arr.sort(() => Math.random() - 0.5);
 
-        // --- Main Game Component ---
         const MoneyMadness = () => {
             const [gameState, setGameState] = useState('start'); 
+            const [character, setCharacter] = useState(null);
             const [gameQuestions, setGameQuestions] = useState(questionsData);
             const [currentQIndex, setCurrentQIndex] = useState(0);
-            const [score, setScore] = useState(0);
+            const [gold, setGold] = useState(0);
             const [missedIDs, setMissedIDs] = useState([]);
             const [isRedemption, setIsRedemption] = useState(false);
-            const [feedback, setFeedback] = useState({ isCorrect: false, message: "" });
-            
-            // New state for 2nd chance
-            const [attempts, setAttempts] = useState(0);
+            const [attempts, setAttempts] = useState(0); // 0 = full health, 1 = half health, 2 = dead
             const [disabledOptions, setDisabledOptions] = useState([]);
-            
-            const currentQ = gameQuestions[currentQIndex];
+            const [feedback, setFeedback] = useState("");
+            const [shake, setShake] = useState(false);
 
-            const startGame = () => {
+            const characters = [
+                { id: 'knight', name: 'Knight', icon: '🛡️', color: 'bg-blue-600' },
+                { id: 'wizard', name: 'Wizard', icon: '🧙‍♂️', color: 'bg-purple-600' },
+                { id: 'rogue', name: 'Rogue', icon: '🗡️', color: 'bg-green-600' }
+            ];
+
+            const startGame = (char) => {
+                setCharacter(char);
                 const shuffled = shuffleArray([...questionsData]);
                 setGameQuestions(shuffled);
                 setGameState('playing');
                 setCurrentQIndex(0);
-                setScore(0);
+                setGold(0);
                 setMissedIDs([]);
                 setIsRedemption(false);
                 setAttempts(0);
@@ -325,10 +183,7 @@
             };
 
             const startRedemption = () => {
-                const redemptionQs = missedIDs
-                    .map(id => ({...redemptionData[id], id: `redemption-${id}`}))
-                    .slice(0, 5);
-
+                const redemptionQs = missedIDs.map(id => ({...redemptionData[id], id: `redemption-${id}`})).slice(0, 5);
                 setGameQuestions(redemptionQs);
                 setGameState('playing');
                 setCurrentQIndex(0);
@@ -338,30 +193,24 @@
             };
 
             const handleAnswer = (option) => {
-                const isCorrect = option === currentQ.correct;
-                
-                if (isCorrect) {
-                    setScore(s => s + 1);
-                    setFeedback({ isCorrect: true, message: "Correct! 🎉" });
-                    confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 }
-                    });
-                    setGameState('feedback');
+                const currentQ = gameQuestions[currentQIndex];
+                if (option === currentQ.correct) {
+                    setGold(g => g + (attempts === 0 ? 100 : 50));
+                    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                    nextQuestion();
                 } else {
-                    // Check if it is the first attempt
                     if (attempts === 0) {
                         setAttempts(1);
                         setDisabledOptions(prev => [...prev, option]);
-                        // Stay in 'playing' state, but UI will show hint
+                        setShake(true);
+                        setTimeout(() => setShake(false), 500);
                     } else {
-                        // Second wrong answer - Proceed to failure state
-                        if (!isRedemption) {
-                            setMissedIDs(prev => [...prev, currentQ.id]);
-                        }
-                        setFeedback({ isCorrect: false, message: `The correct answer was ${currentQ.correct}.` });
-                        setGameState('feedback');
+                        if (!isRedemption) setMissedIDs(prev => [...prev, currentQ.id]);
+                        setShake(true);
+                        setTimeout(() => setShake(false), 500);
+                        // Show answer briefly then move on? Or just move on.
+                        // Let's force move on for game flow
+                        setTimeout(nextQuestion, 1000);
                     }
                 }
             };
@@ -369,49 +218,43 @@
             const nextQuestion = () => {
                 if (currentQIndex < gameQuestions.length - 1) {
                     setCurrentQIndex(prev => prev + 1);
-                    setGameState('playing');
                     setAttempts(0);
                     setDisabledOptions([]);
                 } else {
-                    if (!isRedemption && score < 10 && missedIDs.length > 0) {
+                    if (!isRedemption && gold < 1000 && missedIDs.length > 0) { // < 1000 gold roughly means < 10 perfect answers
                         setGameState('redemptionIntro');
                     } else {
                         setGameState('end');
-                        const duration = 3000;
-                        const end = Date.now() + duration;
-                        (function frame() {
-                            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
-                            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
-                            if (Date.now() < end) { requestAnimationFrame(frame); }
-                        }());
                     }
                 }
             };
 
-            // --- Render Screens ---
+            // --- Screens ---
 
             if (gameState === 'start') {
                 return (
                     <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-                        <h1 className="text-6xl mb-4">🐷</h1>
-                        <h1 className="text-4xl md:text-6xl font-bold text-green-700 mb-6 drop-shadow-md">Money Madness!</h1>
-                        <p className="text-xl text-green-800 mb-8 max-w-md">Help the Piggy Bank solve 15 adventure mysteries to win the treasure!</p>
-                        <button onClick={startGame} className="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold text-2xl py-4 px-12 rounded-full border-b-4 border-yellow-600 shadow-xl transition-all active:translate-y-1 active:border-b-0">
-                            Start Adventure ▶
-                        </button>
+                        <h1 className="text-4xl md:text-6xl text-yellow-400 mb-8 animate-bounce-short drop-shadow-md">MONEY QUEST</h1>
+                        <p className="text-white mb-8 text-xs md:text-sm max-w-md leading-6">Select your hero to begin the adventure!</p>
+                        <div className="flex gap-4 flex-wrap justify-center">
+                            {characters.map(c => (
+                                <button key={c.id} onClick={() => startGame(c)} className={`flex flex-col items-center justify-center w-32 h-40 ${c.color} border-4 border-white pixel-btn hover:scale-105 transition-transform`}>
+                                    <span className="text-4xl mb-2">{c.icon}</span>
+                                    <span className="text-xs uppercase">{c.name}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 );
             }
 
             if (gameState === 'redemptionIntro') {
                 return (
-                    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-orange-50">
-                        <h1 className="text-6xl mb-4">🚀</h1>
-                        <h2 className="text-4xl font-bold text-orange-600 mb-4">Redemption Round!</h2>
-                        <p className="text-2xl text-gray-700 mb-6">You scored {score}. But you can do better!</p>
-                        <p className="text-lg text-gray-600 mb-8 max-w-md">Let's try some similar challenges to boost your score.</p>
-                        <button onClick={startRedemption} className="bg-orange-500 hover:bg-orange-400 text-white font-bold text-2xl py-4 px-12 rounded-full shadow-xl transition-all transform hover:scale-105">
-                            Start Redemption Round!
+                    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-red-900">
+                        <h1 className="text-3xl text-red-200 mb-4">⚠️ DANGER! ⚠️</h1>
+                        <p className="text-white mb-8 text-sm">Your Gold ({gold}) is too low!</p>
+                        <button onClick={startRedemption} className="bg-yellow-500 text-black border-4 border-white px-8 py-4 pixel-btn text-sm uppercase animate-pulse">
+                            Enter Redemption Dungeon
                         </button>
                     </div>
                 );
@@ -420,117 +263,95 @@
             if (gameState === 'end') {
                 return (
                     <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-                        <h1 className="text-6xl mb-4">🏆</h1>
-                        <h2 className="text-4xl font-bold text-blue-600 mb-4">Great Job!</h2>
-                        <p className="text-2xl text-gray-700 mb-6">Final Score: {score}</p>
-                        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-                            <p className="text-lg">You are a certified Money Master!</p>
+                        <h1 className="text-5xl mb-6">🏆 QUEST COMPLETE</h1>
+                        <div className="bg-gray-800 p-8 border-4 border-white mb-8 rounded">
+                            <p className="text-yellow-400 text-2xl mb-2">TOTAL GOLD</p>
+                            <p className="text-white text-4xl">{gold}</p>
                         </div>
-                        <button onClick={startGame} className="bg-green-500 hover:bg-green-400 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg">
-                            Play Again ↺
-                        </button>
+                        <button onClick={() => setGameState('start')} className="bg-green-600 text-white border-4 border-white px-8 py-4 pixel-btn">PLAY AGAIN</button>
                     </div>
                 );
             }
 
+            const currentQ = gameQuestions[currentQIndex];
+
             return (
-                <div className={`min-h-screen flex flex-col items-center py-4 px-4 max-w-6xl mx-auto transition-colors duration-500 ${isRedemption ? 'bg-orange-50' : ''}`}>
-                    {/* Header */}
-                    <div className={`w-full flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border-2 ${isRedemption ? 'border-orange-200' : 'border-green-100'}`}>
-                        <div className="flex items-center gap-2">
-                            <span className="text-2xl">{isRedemption ? '🚀' : '🐷'}</span>
-                            <span className={`font-bold ${isRedemption ? 'text-orange-600' : 'text-green-700'}`}>
-                                {isRedemption ? 'Redemption Q' : 'Question'} {currentQIndex + 1}/{gameQuestions.length}
-                            </span>
+                <div className={`min-h-screen flex flex-col items-center py-4 px-4 max-w-6xl mx-auto ${shake ? 'animate-shake' : ''}`}>
+                    {/* Top HUD */}
+                    <div className="w-full flex justify-between items-center mb-6 bg-gray-800 p-3 border-4 border-white rounded shadow-lg">
+                        <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 flex items-center justify-center text-2xl ${character.color} border-2 border-white rounded`}>
+                                {character.icon}
+                            </div>
+                            <div className="flex flex-col text-left">
+                                <span className="text-[10px] text-gray-400">HERO</span>
+                                <span className="text-xs text-white">{character.name}</span>
+                            </div>
                         </div>
-                        <div className="font-bold text-orange-500">Score: {score}</div>
+                        <div className="flex flex-col text-right">
+                             <span className="text-[10px] text-yellow-400">GOLD</span>
+                             <span className="text-xl text-yellow-300">{gold}</span>
+                        </div>
                     </div>
 
-                    {/* Main Game Area: Question + Workspace side-by-side on desktop */}
-                    <div className="flex flex-col md:flex-row gap-6 w-full items-start">
+                    <div className="flex flex-col md:flex-row gap-6 w-full items-start h-full">
                         
-                        {/* Question Card Column */}
-                        <div className="flex-1 w-full bg-white rounded-2xl shadow-xl border-b-8 border-green-200 overflow-hidden relative">
-                            <div className={`p-6 border-b ${isRedemption ? 'bg-orange-100 border-orange-200' : 'bg-green-50 border-green-100'}`}>
-                                <h2 className="text-2xl font-bold text-gray-800 text-center leading-relaxed">{currentQ.text}</h2>
+                        {/* Battle Screen (Question) */}
+                        <div className="flex-1 w-full bg-slate-700 border-4 border-white rounded shadow-xl relative overflow-hidden">
+                            {/* Health Bar for current Q */}
+                            <div className="absolute top-2 right-2 flex gap-1">
+                                <span className="text-red-500 text-lg">{attempts === 0 ? '❤️❤️' : attempts === 1 ? '❤️🖤' : '🖤🖤'}</span>
                             </div>
 
-                            <div className="p-8 flex flex-col items-center justify-center min-h-[200px] bg-sky-50">
-                                {/* Visuals Logic */}
-                                {currentQ.visualType === 'coins' && (
-                                    <div className="flex flex-wrap justify-center gap-4">
-                                        {currentQ.coins.map((c, i) => <Coin key={i} type={c} />)}
-                                    </div>
-                                )}
+                            <div className="p-6 border-b-4 border-slate-600 bg-slate-800 text-center min-h-[120px] flex items-center justify-center">
+                                <h2 className="text-xs md:text-sm leading-relaxed text-white">{currentQ.text}</h2>
+                            </div>
+
+                            <div className="p-8 flex flex-col items-center justify-center min-h-[220px] bg-slate-600 relative">
+                                {currentQ.visualType === 'coins' && <div className="flex flex-wrap justify-center gap-4">{currentQ.coins.map((c, i) => <Coin key={i} type={c} />)}</div>}
                                 {currentQ.visualType === 'subtraction' && (
-                                    <div className="flex items-center text-4xl font-bold text-gray-600 gap-4">
-                                        <div className="bg-white px-4 py-2 rounded-lg border-2 border-gray-200">{currentQ.start}</div>
-                                        <div className="text-red-500">−</div>
-                                        <div className="bg-white px-4 py-2 rounded-lg border-2 border-gray-200">{currentQ.minus}</div>
+                                    <div className="flex items-center text-xl md:text-3xl font-bold text-white gap-4">
+                                        <div className="bg-slate-800 px-4 py-2 border-2 border-gray-400 rounded">{currentQ.start}</div>
+                                        <div className="text-red-400">-</div>
+                                        <div className="bg-slate-800 px-4 py-2 border-2 border-gray-400 rounded">{currentQ.minus}</div>
                                     </div>
                                 )}
-                                {currentQ.visualType === 'items' && (
-                                    <div className="flex gap-8 text-5xl">
-                                        {currentQ.items.map((item, i) => (
-                                            <div key={i} className="flex flex-col items-center">
-                                                <span>{item.split(' ')[0]}</span>
-                                                <span className="text-lg font-bold bg-white px-2 rounded mt-2">{item.split(' ')[1]}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                {currentQ.visualType === 'items' && <div className="flex gap-4 md:gap-8 text-3xl md:text-4xl">{currentQ.items.map((item, i) => <div key={i} className="flex flex-col items-center"><span>{item.split(' ')[0]}</span><span className="text-[10px] bg-black text-white px-2 rounded mt-2 border border-gray-500">{item.split(' ')[1]}</span></div>)}</div>}
                                 {currentQ.visualType === 'simple' && <div className="text-6xl animate-bounce-short">{currentQ.image}</div>}
-                                {currentQ.visualType === 'text-only' && <div className="text-6xl text-gray-300">?</div>}
+                                {currentQ.visualType === 'text-only' && <div className="text-6xl text-gray-400">?</div>}
+                                
+                                {attempts === 1 && (
+                                    <div className="absolute bottom-2 left-0 right-0 text-center bg-yellow-900 text-yellow-100 py-1 text-[10px] border-t-2 border-yellow-600 animate-pulse">
+                                        HINT: {currentQ.hint}
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Hint Box (Appears after 1st mistake) */}
-                            {attempts === 1 && gameState === 'playing' && (
-                                <div className="mx-6 mb-2 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded animate-fade-in">
-                                    <span className="font-bold">Not quite!</span> 🕵️ Hint: {currentQ.hint} <br/>
-                                    <span className="text-sm font-bold mt-1 block">Try again!</span>
-                                </div>
-                            )}
-
-                            <div className="p-6 bg-white">
-                                {gameState === 'playing' ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        {currentQ.options.map((opt, i) => {
-                                            const isDisabled = disabledOptions.includes(opt);
-                                            return (
-                                                <button 
-                                                    key={i} 
-                                                    onClick={() => !isDisabled && handleAnswer(opt)} 
-                                                    className={`
-                                                        font-bold py-4 rounded-xl border-b-4 text-xl transition-all
-                                                        ${isDisabled 
-                                                            ? 'bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed' 
-                                                            : 'bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300 active:border-b-0 active:translate-y-1'}
-                                                    `}
-                                                    disabled={isDisabled}
-                                                >
-                                                    {opt}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                ) : (
-                                    <div className="text-center animate-fade-in">
-                                        <h3 className={`text-3xl font-bold mb-4 ${feedback.isCorrect ? 'text-green-500' : 'text-red-500'}`}>{feedback.message}</h3>
-                                        <button onClick={nextQuestion} className="bg-gray-800 text-white font-bold py-3 px-12 rounded-full text-lg hover:bg-gray-700 transition-colors">
-                                            Next ➡
-                                        </button>
-                                    </div>
-                                )}
+                            <div className="p-4 bg-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {currentQ.options.map((opt, i) => (
+                                    <button 
+                                        key={i} 
+                                        onClick={() => !disabledOptions.includes(opt) && handleAnswer(opt)}
+                                        className={`py-4 border-b-4 rounded text-xs md:text-sm pixel-btn transition-colors
+                                            ${disabledOptions.includes(opt) ? 'bg-gray-600 text-gray-400 border-gray-800' : 'bg-blue-600 text-white border-blue-800 hover:bg-blue-500'}
+                                        `}
+                                        disabled={disabledOptions.includes(opt)}
+                                    >
+                                        {opt}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
-                        {/* Workspace Column (Now side-by-side on desktop) */}
-                        {gameState === 'playing' && (
-                            <div className="w-full md:w-80 flex-shrink-0">
-                                <CoinWorkspace />
-                            </div>
-                        )}
-
+                        {/* Inventory (Coin Helper) */}
+                        <div className="w-full md:w-64 flex-shrink-0">
+                            <CoinWorkspace />
+                        </div>
+                    </div>
+                    
+                    {/* Level Indicator */}
+                    <div className="mt-4 text-[10px] text-gray-500">
+                         {isRedemption ? 'DUNGEON LEVEL' : 'LEVEL'} {currentQIndex + 1}/{gameQuestions.length}
                     </div>
                 </div>
             );
