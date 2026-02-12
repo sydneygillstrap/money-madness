@@ -189,7 +189,7 @@
             }
         ];
 
-        // --- Redemption Data: Similar questions mapped to Original IDs ---
+        // --- Redemption Data ---
         const redemptionData = {
             1: { text: "You found 2 dimes on the sidewalk. How much?", visualType: "coins", coins: ["dime", "dime"], options: ["10¢", "20¢", "30¢"], correct: "20¢", hint: "10 + 10 = ?" },
             2: { text: "You have 60¢. You buy gum for 10¢. Left?", visualType: "subtraction", start: "60¢", minus: "10¢", options: ["50¢", "70¢", "40¢"], correct: "50¢", hint: "60 minus 10." },
@@ -298,13 +298,17 @@
 
         // --- Main Game Component ---
         const MoneyMadness = () => {
-            const [gameState, setGameState] = useState('start'); // start, playing, feedback, redemptionIntro, end
+            const [gameState, setGameState] = useState('start'); 
             const [gameQuestions, setGameQuestions] = useState(questionsData);
             const [currentQIndex, setCurrentQIndex] = useState(0);
             const [score, setScore] = useState(0);
             const [missedIDs, setMissedIDs] = useState([]);
             const [isRedemption, setIsRedemption] = useState(false);
             const [feedback, setFeedback] = useState({ isCorrect: false, message: "" });
+            
+            // New state for 2nd chance
+            const [attempts, setAttempts] = useState(0);
+            const [disabledOptions, setDisabledOptions] = useState([]);
             
             const currentQ = gameQuestions[currentQIndex];
 
@@ -316,19 +320,21 @@
                 setScore(0);
                 setMissedIDs([]);
                 setIsRedemption(false);
+                setAttempts(0);
+                setDisabledOptions([]);
             };
 
             const startRedemption = () => {
-                // Pick up to 5 missed questions to redeem
-                // We map the missed IDs to the new redemption questions
                 const redemptionQs = missedIDs
-                    .map(id => ({...redemptionData[id], id: `redemption-${id}`})) // Get the twin question
-                    .slice(0, 5); // Cap at 5 questions so it's not too long
+                    .map(id => ({...redemptionData[id], id: `redemption-${id}`}))
+                    .slice(0, 5);
 
                 setGameQuestions(redemptionQs);
                 setGameState('playing');
                 setCurrentQIndex(0);
                 setIsRedemption(true);
+                setAttempts(0);
+                setDisabledOptions([]);
             };
 
             const handleAnswer = (option) => {
@@ -342,28 +348,35 @@
                         spread: 70,
                         origin: { y: 0.6 }
                     });
+                    setGameState('feedback');
                 } else {
-                    // If playing normal mode, track the mistake
-                    if (!isRedemption) {
-                        setMissedIDs(prev => [...prev, currentQ.id]);
+                    // Check if it is the first attempt
+                    if (attempts === 0) {
+                        setAttempts(1);
+                        setDisabledOptions(prev => [...prev, option]);
+                        // Stay in 'playing' state, but UI will show hint
+                    } else {
+                        // Second wrong answer - Proceed to failure state
+                        if (!isRedemption) {
+                            setMissedIDs(prev => [...prev, currentQ.id]);
+                        }
+                        setFeedback({ isCorrect: false, message: `The correct answer was ${currentQ.correct}.` });
+                        setGameState('feedback');
                     }
-                    setFeedback({ isCorrect: false, message: `Oops! Try again. ${currentQ.hint}` });
                 }
-                
-                setGameState('feedback');
             };
 
             const nextQuestion = () => {
                 if (currentQIndex < gameQuestions.length - 1) {
                     setCurrentQIndex(prev => prev + 1);
                     setGameState('playing');
+                    setAttempts(0);
+                    setDisabledOptions([]);
                 } else {
-                    // End of current round
                     if (!isRedemption && score < 10 && missedIDs.length > 0) {
                         setGameState('redemptionIntro');
                     } else {
                         setGameState('end');
-                        // End celebration
                         const duration = 3000;
                         const end = Date.now() + duration;
                         (function frame() {
@@ -440,6 +453,7 @@
                         </div>
 
                         <div className="p-8 flex flex-col items-center justify-center min-h-[200px] bg-sky-50">
+                            {/* Visuals Logic */}
                             {currentQ.visualType === 'coins' && (
                                 <div className="flex flex-wrap justify-center gap-4">
                                     {currentQ.coins.map((c, i) => <Coin key={i} type={c} />)}
@@ -466,14 +480,35 @@
                             {currentQ.visualType === 'text-only' && <div className="text-6xl text-gray-300">?</div>}
                         </div>
 
+                        {/* Hint Box (Appears after 1st mistake) */}
+                        {attempts === 1 && gameState === 'playing' && (
+                            <div className="mx-6 mb-2 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded animate-fade-in">
+                                <span className="font-bold">Not quite!</span> 🕵️ Hint: {currentQ.hint} <br/>
+                                <span className="text-sm font-bold mt-1 block">Try again!</span>
+                            </div>
+                        )}
+
                         <div className="p-6 bg-white">
                             {gameState === 'playing' ? (
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {currentQ.options.map((opt, i) => (
-                                        <button key={i} onClick={() => handleAnswer(opt)} className="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-4 rounded-xl border-b-4 border-blue-300 active:border-b-0 active:translate-y-1 transition-all text-xl">
-                                            {opt}
-                                        </button>
-                                    ))}
+                                    {currentQ.options.map((opt, i) => {
+                                        const isDisabled = disabledOptions.includes(opt);
+                                        return (
+                                            <button 
+                                                key={i} 
+                                                onClick={() => !isDisabled && handleAnswer(opt)} 
+                                                className={`
+                                                    font-bold py-4 rounded-xl border-b-4 text-xl transition-all
+                                                    ${isDisabled 
+                                                        ? 'bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed' 
+                                                        : 'bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300 active:border-b-0 active:translate-y-1'}
+                                                `}
+                                                disabled={isDisabled}
+                                            >
+                                                {opt}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className="text-center animate-fade-in">
