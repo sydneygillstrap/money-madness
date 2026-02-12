@@ -61,40 +61,41 @@
         const { useState, useEffect } = React;
 
         // --- Game Data ---
+        // Rephrased for clarity for 2nd graders
         const questionsData = [
-            { id: 1, text: "Captain Redbeard dropped 2 quarters! Value?", visualType: "coins", coins: ["quarter", "quarter"], options: ["25¢", "50¢", "$1.00"], correct: "50¢", hint: "25 + 25 = 50" },
-            { id: 2, text: "Magic Bean costs 10¢. You have 50¢. Left?", visualType: "subtraction", start: "50¢", minus: "10¢", options: ["60¢", "40¢", "30¢"], correct: "40¢", hint: "50 - 10" },
-            { id: 3, text: "Robot Fuel: 2 Dimes + 1 Nickel.", visualType: "coins", coins: ["dime", "dime", "nickel"], options: ["25¢", "30¢", "15¢"], correct: "25¢", hint: "10+10+5" },
-            { id: 4, text: "Goblin stole 60¢ from your $1.00! Left?", visualType: "simple", image: "👺", options: ["40¢", "50¢", "60¢"], correct: "40¢", hint: "100 - 60" },
-            { id: 5, text: "Toll is 20¢. Pick the coins.", visualType: "text-only", options: ["2 Dimes", "2 Nickels", "1 Quarter"], correct: "2 Dimes", hint: "10 + 10" },
-            { id: 6, text: "Buy: Potion(30¢) + Wand(20¢).", visualType: "items", items: ["🧪 30¢", "🪄 20¢"], options: ["10¢", "40¢", "50¢"], correct: "50¢", hint: "30 + 20" },
-            { id: 7, text: "Loot: 3 pennies & 1 nickel.", visualType: "coins", coins: ["penny", "penny", "penny", "nickel"], options: ["8¢", "4¢", "13¢"], correct: "8¢", hint: "1+1+1+5" },
-            { id: 8, text: "100 pennies = $1.00?", visualType: "simple", image: "💰", options: ["True", "False"], correct: "True", hint: "Yes!" },
-            { id: 9, text: "Have 75¢. Spent 25¢. Left?", visualType: "subtraction", start: "75¢", minus: "25¢", options: ["100¢", "50¢", "25¢"], correct: "50¢", hint: "75 - 25" },
-            { id: 10, text: "Symbol for fifty cents?", visualType: "text-only", options: ["$0.50", "0.50¢", "$50"], correct: "$0.50", hint: "$ in front" },
-            { id: 11, text: "Pattern: 10, 20, 30...?", visualType: "simple", image: "🚀", options: ["35", "40", "50"], correct: "40", hint: "+10" },
-            { id: 12, text: "Pencil(15¢) + Eraser(5¢).", visualType: "items", items: ["✏️ 15¢", "🧼 5¢"], options: ["20¢", "10¢", "25¢"], correct: "20¢", hint: "15 + 5" },
-            { id: 13, text: "How many quarters in $1.00?", visualType: "coins", coins: ["quarter", "quarter", "quarter", "quarter"], options: ["2", "3", "4"], correct: "4", hint: "4 quarters" },
-            { id: 14, text: "Had 90¢. Lost a dime.", visualType: "subtraction", start: "90¢", minus: "10¢", options: ["80¢", "100¢", "85¢"], correct: "80¢", hint: "90 - 10" },
-            { id: 15, text: "2 quarters + 5 dimes = $1.00?", visualType: "coins", coins: ["quarter", "quarter", "dime", "dime", "dime", "dime", "dime"], options: ["Yes", "No"], correct: "Yes", hint: "50 + 50" }
+            { id: 1, text: "Captain Redbeard dropped 2 quarters! How much money is that?", visualType: "coins", coins: ["quarter", "quarter"], options: ["25¢", "50¢", "$1.00"], correct: "50¢", hint: "25 + 25 = 50" },
+            { id: 2, text: "You have 50¢. You buy a Magic Bean for 10¢. How much is left?", visualType: "subtraction", start: "50¢", minus: "10¢", options: ["60¢", "40¢", "30¢"], correct: "40¢", hint: "50 - 10" },
+            { id: 3, text: "The Robot needs fuel! Add these up: 2 Dimes and 1 Nickel.", visualType: "coins", coins: ["dime", "dime", "nickel"], options: ["25¢", "30¢", "15¢"], correct: "25¢", hint: "10 + 10 + 5" },
+            { id: 4, text: "You have $1.00. A Goblin steals 60¢! How much do you have left?", visualType: "simple", image: "👺", options: ["40¢", "50¢", "60¢"], correct: "40¢", hint: "100 - 60" },
+            { id: 5, text: "The bridge toll is 20¢. Which coins pay the toll?", visualType: "text-only", options: ["2 Dimes", "2 Nickels", "1 Quarter"], correct: "2 Dimes", hint: "10 + 10" },
+            { id: 6, text: "Shop Sale! You buy a Potion (30¢) and a Wand (20¢). Total cost?", visualType: "items", items: ["🧪 30¢", "🪄 20¢"], options: ["10¢", "40¢", "50¢"], correct: "50¢", hint: "30 + 20" },
+            { id: 7, text: "You found loot! You found 3 pennies and 1 nickel. Count it up.", visualType: "coins", coins: ["penny", "penny", "penny", "nickel"], options: ["8¢", "4¢", "13¢"], correct: "8¢", hint: "1+1+1+5" },
+            { id: 8, text: "True or False: 100 pennies is the same amount as $1.00.", visualType: "simple", image: "💰", options: ["True", "False"], correct: "True", hint: "Yes!" },
+            { id: 9, text: "You have 75¢. You spend 25¢ on a map. What is left?", visualType: "subtraction", start: "75¢", minus: "25¢", options: ["100¢", "50¢", "25¢"], correct: "50¢", hint: "75 - 25" },
+            { id: 10, text: "Which is the correct way to write fifty cents?", visualType: "text-only", options: ["$0.50", "0.50¢", "$50"], correct: "$0.50", hint: "$ in front" },
+            { id: 11, text: "Finish the pattern counting by 10s: 10, 20, 30... what is next?", visualType: "simple", image: "🚀", options: ["35", "40", "50"], correct: "40", hint: "+10" },
+            { id: 12, text: "School Quest: A pencil is 15¢ and an eraser is 5¢. Total cost?", visualType: "items", items: ["✏️ 15¢", "🧼 5¢"], options: ["20¢", "10¢", "25¢"], correct: "20¢", hint: "15 + 5" },
+            { id: 13, text: "How many quarters do you need to make exactly $1.00?", visualType: "coins", coins: ["quarter", "quarter", "quarter", "quarter"], options: ["2", "3", "4"], correct: "4", hint: "4 quarters" },
+            { id: 14, text: "You had 90¢, but you lost a dime. How much do you have now?", visualType: "subtraction", start: "90¢", minus: "10¢", options: ["80¢", "100¢", "85¢"], correct: "80¢", hint: "90 - 10" },
+            { id: 15, text: "Boss Battle! Do 2 quarters and 5 dimes add up to exactly $1.00?", visualType: "coins", coins: ["quarter", "quarter", "dime", "dime", "dime", "dime", "dime"], options: ["Yes", "No"], correct: "Yes", hint: "50 + 50" }
         ];
 
         const redemptionData = {
-            1: { text: "Found 2 dimes. Value?", visualType: "coins", coins: ["dime", "dime"], options: ["10¢", "20¢", "30¢"], correct: "20¢", hint: "10+10" },
-            2: { text: "Have 60¢. Spent 10¢. Left?", visualType: "subtraction", start: "60¢", minus: "10¢", options: ["50¢", "70¢", "40¢"], correct: "50¢", hint: "60-10" },
-            3: { text: "Need: 2 nickels + 1 dime.", visualType: "coins", coins: ["nickel", "nickel", "dime"], options: ["15¢", "20¢", "25¢"], correct: "20¢", hint: "5+5+10" },
-            4: { text: "Have $1.00. Lost 80¢.", visualType: "simple", image: "👺", options: ["10¢", "20¢", "30¢"], correct: "20¢", hint: "100-80" },
-            5: { text: "Make 10¢.", visualType: "text-only", options: ["2 Nickels", "2 Pennies", "2 Dimes"], correct: "2 Nickels", hint: "5+5" },
-            6: { text: "Milk(40¢) + Cookie(10¢).", visualType: "items", items: ["🥛 40¢", "🍪 10¢"], options: ["40¢", "50¢", "60¢"], correct: "50¢", hint: "40+10" },
-            7: { text: "Saved: 2 pennies + 1 dime.", visualType: "coins", coins: ["penny", "penny", "dime"], options: ["12¢", "21¢", "3¢"], correct: "12¢", hint: "1+1+10" },
-            8: { text: "100 pennies = $1.00?", visualType: "simple", image: "💰", options: ["True", "False"], correct: "True", hint: "Yes" },
-            9: { text: "Have 50¢. Spent 25¢.", visualType: "subtraction", start: "50¢", minus: "25¢", options: ["25¢", "35¢", "15¢"], correct: "25¢", hint: "50-25" },
-            10: { text: "Symbol for 25 cents?", visualType: "text-only", options: ["$0.25", "25$", "0.25¢"], correct: "$0.25", hint: "$ first" },
-            11: { text: "5, 10, 15...?", visualType: "simple", image: "🚀", options: ["20", "25", "16"], correct: "20", hint: "+5" },
-            12: { text: "Toy(25¢) + Sticker(5¢).", visualType: "items", items: ["🧸 25¢", "🏷️ 5¢"], options: ["20¢", "30¢", "35¢"], correct: "30¢", hint: "25+5" },
-            13: { text: "Dimes in $1.00?", visualType: "coins", coins: ["dime", "dime", "dime", "dime"], options: ["4", "10", "100"], correct: "10", hint: "Count by 10" },
-            14: { text: "Have 70¢. Lost 10¢.", visualType: "subtraction", start: "70¢", minus: "10¢", options: ["50¢", "60¢", "80¢"], correct: "60¢", hint: "70-10" },
-            15: { text: "10 dimes = $1.00?", visualType: "coins", coins: ["dime", "dime", "dime", "dime", "dime"], options: ["Yes", "No"], correct: "Yes", hint: "Yes" }
+            1: { text: "You found 2 dimes. How much money is that?", visualType: "coins", coins: ["dime", "dime"], options: ["10¢", "20¢", "30¢"], correct: "20¢", hint: "10+10" },
+            2: { text: "You have 60¢. You spend 10¢. How much is left?", visualType: "subtraction", start: "60¢", minus: "10¢", options: ["50¢", "70¢", "40¢"], correct: "50¢", hint: "60-10" },
+            3: { text: "Add these coins: 2 nickels and 1 dime.", visualType: "coins", coins: ["nickel", "nickel", "dime"], options: ["15¢", "20¢", "25¢"], correct: "20¢", hint: "5+5+10" },
+            4: { text: "You have $1.00. You lose 80¢. How much is left?", visualType: "simple", image: "👺", options: ["10¢", "20¢", "30¢"], correct: "20¢", hint: "100-80" },
+            5: { text: "Which coins add up to 10¢?", visualType: "text-only", options: ["2 Nickels", "2 Pennies", "2 Dimes"], correct: "2 Nickels", hint: "5+5" },
+            6: { text: "You buy Milk (40¢) and a Cookie (10¢). Total cost?", visualType: "items", items: ["🥛 40¢", "🍪 10¢"], options: ["40¢", "50¢", "60¢"], correct: "50¢", hint: "40+10" },
+            7: { text: "Count the coins: 2 pennies and 1 dime.", visualType: "coins", coins: ["penny", "penny", "dime"], options: ["12¢", "21¢", "3¢"], correct: "12¢", hint: "1+1+10" },
+            8: { text: "True or False: 100 pennies is equal to $1.00.", visualType: "simple", image: "💰", options: ["True", "False"], correct: "True", hint: "Yes" },
+            9: { text: "You have 50¢. You spend 25¢. What is left?", visualType: "subtraction", start: "50¢", minus: "25¢", options: ["25¢", "35¢", "15¢"], correct: "25¢", hint: "50-25" },
+            10: { text: "Which is the correct way to write 25 cents?", visualType: "text-only", options: ["$0.25", "25$", "0.25¢"], correct: "$0.25", hint: "$ first" },
+            11: { text: "Count by 5s: 5, 10, 15... what comes next?", visualType: "simple", image: "🚀", options: ["20", "25", "16"], correct: "20", hint: "+5" },
+            12: { text: "You buy a Toy (25¢) and a Sticker (5¢). Total cost?", visualType: "items", items: ["🧸 25¢", "🏷️ 5¢"], options: ["20¢", "30¢", "35¢"], correct: "30¢", hint: "25+5" },
+            13: { text: "How many dimes do you need to make $1.00?", visualType: "coins", coins: ["dime", "dime", "dime", "dime"], options: ["4", "10", "100"], correct: "10", hint: "Count by 10" },
+            14: { text: "You have 70¢. You lose 10¢. How much is left?", visualType: "subtraction", start: "70¢", minus: "10¢", options: ["50¢", "60¢", "80¢"], correct: "60¢", hint: "70-10" },
+            15: { text: "Do 10 dimes add up to exactly $1.00?", visualType: "coins", coins: ["dime", "dime", "dime", "dime", "dime"], options: ["Yes", "No"], correct: "Yes", hint: "Yes" }
         };
 
         const Coin = ({ type, onClick, small }) => {
