@@ -70,12 +70,12 @@
 
         // --- Level Config (Themed by Character) ---
         const THEMED_LEVELS = {
-            gardener: [
-                { id: 1, name: "Tulip Garden", icon: "🌷", bg: "bg-pink-300", wall: "bg-pink-600", path: "bg-pink-100" },
-                { id: 2, name: "Veggie Patch", icon: "🥕", bg: "bg-orange-200", wall: "bg-orange-600", path: "bg-orange-50" },
-                { id: 3, name: "Sunflower Field", icon: "🌻", bg: "bg-yellow-200", wall: "bg-yellow-600", path: "bg-yellow-50" },
-                { id: 4, name: "Berry Bush", icon: "🍓", bg: "bg-red-300", wall: "bg-red-600", path: "bg-red-100" },
-                { id: 5, name: "Greenhouse", icon: "🏡", bg: "bg-green-300", wall: "bg-green-700", path: "bg-green-100" }
+            gnome: [
+                { id: 1, name: "Toadstool Village", icon: "🍄", bg: "bg-red-200", wall: "bg-red-600", path: "bg-red-50" },
+                { id: 2, name: "Root Cellar", icon: "🥕", bg: "bg-orange-200", wall: "bg-orange-600", path: "bg-orange-50" },
+                { id: 3, name: "Mossy Rock", icon: "🪨", bg: "bg-stone-300", wall: "bg-stone-600", path: "bg-stone-100" },
+                { id: 4, name: "Gem Mine", icon: "💎", bg: "bg-blue-200", wall: "bg-blue-600", path: "bg-blue-50" },
+                { id: 5, name: "Tree Stump", icon: "🪵", bg: "bg-amber-300", wall: "bg-amber-700", path: "bg-amber-100" }
             ],
             frog: [
                 { id: 1, name: "Quiet Pond", icon: "💧", bg: "bg-blue-300", wall: "bg-blue-600", path: "bg-blue-100" },
@@ -84,12 +84,12 @@
                 { id: 4, name: "Rushing River", icon: "🌊", bg: "bg-cyan-300", wall: "bg-cyan-600", path: "bg-cyan-100" },
                 { id: 5, name: "Waterfall Cave", icon: "🌈", bg: "bg-indigo-400", wall: "bg-indigo-700", path: "bg-indigo-200" }
             ],
-            ladybug: [
-                { id: 1, name: "Rose Petal", icon: "🌹", bg: "bg-red-200", wall: "bg-red-500", path: "bg-red-50" },
-                { id: 2, name: "Tall Grass", icon: "🌿", bg: "bg-lime-300", wall: "bg-lime-600", path: "bg-lime-100" },
-                { id: 3, name: "Sunny Rock", icon: "🪨", bg: "bg-stone-300", wall: "bg-stone-600", path: "bg-stone-100" },
-                { id: 4, name: "Violet Vale", icon: "🟣", bg: "bg-violet-300", wall: "bg-violet-600", path: "bg-violet-100" },
-                { id: 5, name: "The Big Tree", icon: "🌳", bg: "bg-emerald-400", wall: "bg-emerald-800", path: "bg-emerald-200" }
+            fairy: [
+                { id: 1, name: "Pixie Hollow", icon: "✨", bg: "bg-yellow-100", wall: "bg-yellow-400", path: "bg-white" },
+                { id: 2, name: "Flower Bud", icon: "🌷", bg: "bg-pink-200", wall: "bg-pink-500", path: "bg-pink-50" },
+                { id: 3, name: "Butterfly Wing", icon: "🦋", bg: "bg-purple-200", wall: "bg-purple-500", path: "bg-purple-50" },
+                { id: 4, name: "Moonlight Glade", icon: "🌙", bg: "bg-indigo-200", wall: "bg-indigo-600", path: "bg-indigo-50" },
+                { id: 5, name: "Crystal Palace", icon: "🏰", bg: "bg-cyan-100", wall: "bg-cyan-400", path: "bg-white" }
             ]
         };
 
@@ -225,7 +225,7 @@
         const MoneyMadness = () => {
             const [gameState, setGameState] = useState('start'); 
             const [character, setCharacter] = useState(null);
-            const [currentLevelSet, setCurrentLevelSet] = useState(THEMED_LEVELS.gardener);
+            const [currentLevelSet, setCurrentLevelSet] = useState(THEMED_LEVELS.gnome);
             
             // Level State
             const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
@@ -242,9 +242,9 @@
             const [completedTasks, setCompletedTasks] = useState(0);
 
             const characters = [
-                { id: 'gardener', name: 'Gardener', icon: '👩‍🌾', color: 'bg-green-500' },
-                { id: 'frog', name: 'Froggy', icon: '🐸', color: 'bg-green-700' },
-                { id: 'ladybug', name: 'Ladybug', icon: '🐞', color: 'bg-red-500' }
+                { id: 'gnome', name: 'Gnome', icon: '🎅', color: 'bg-red-500' },
+                { id: 'fairy', name: 'Fairy', icon: '🧚', color: 'bg-pink-400' },
+                { id: 'frog', name: 'Froggy', icon: '🐸', color: 'bg-green-500' }
             ];
 
             const currentLevelData = currentLevelSet[currentLevelIdx] || currentLevelSet[0];
