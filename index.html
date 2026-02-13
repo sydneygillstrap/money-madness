@@ -48,9 +48,18 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
         
-        /* Maze Styles - MADE BIGGER */
+        /* Maze Styles - BIGGER */
         .maze-cell { width: 50px; height: 50px; }
         .player-token { transition: all 0.2s linear; }
+
+        /* Text Outline Utility */
+        .text-outline {
+            text-shadow: 
+                -2px -2px 0 #000,  
+                 2px -2px 0 #000,
+                -2px  2px 0 #000,
+                 2px  2px 0 #000;
+        }
     </style>
 </head>
 <body>
@@ -150,30 +159,30 @@
 
         // --- Game Data (Spring Themed) ---
         const questionsData = [
-            // Level 1: Tulip Garden
+            // Level 1
             { id: 1, text: "The Easter Bunny dropped 2 quarters! How much money is that?", visualType: "coins", coins: ["quarter", "quarter"], options: ["25¢", "50¢", "$1.00"], correct: "50¢", hint: "25 + 25 = 50", enemy: "🐰" },
             { id: 2, text: "You have 50¢. You buy a flower seed for 10¢. How much is left?", visualType: "subtraction", start: "50¢", minus: "10¢", options: ["60¢", "40¢", "30¢"], correct: "40¢", hint: "50 - 10", enemy: "🌱" },
             { id: 3, text: "The Busy Bee needs nectar! Add these up: 2 Dimes and 1 Nickel.", visualType: "coins", coins: ["dime", "dime", "nickel"], options: ["25¢", "30¢", "15¢"], correct: "25¢", hint: "10 + 10 + 5", enemy: "🐝" },
-            // Level 2: Sunny Meadow
+            // Level 2
             { id: 4, text: "You have $1.00. A playful squirrel takes 60¢! How much is left?", visualType: "simple", image: "🐿️", options: ["40¢", "50¢", "60¢"], correct: "40¢", hint: "100 - 60", enemy: "🐿️" },
             { id: 5, text: "The Garden Gate fee is 20¢. Which coins pay the fee?", visualType: "text-only", options: ["2 Dimes", "2 Nickels", "1 Quarter"], correct: "2 Dimes", hint: "10 + 10", enemy: "🚪" },
             { id: 6, text: "Picnic Sale! Lemonade (30¢) and a Cookie (20¢). Total cost?", visualType: "items", items: ["🍋 30¢", "🍪 20¢"], options: ["10¢", "40¢", "50¢"], correct: "50¢", hint: "30 + 20", enemy: "🍪" },
-            // Level 3: Rainy Puddle
+            // Level 3
             { id: 7, text: "Found in the grass! 3 pennies and 1 nickel. Count it up.", visualType: "coins", coins: ["penny", "penny", "penny", "nickel"], options: ["8¢", "4¢", "13¢"], correct: "8¢", hint: "1+1+1+5", enemy: "🧺" },
             { id: 8, text: "True or False: 100 pennies is the same amount as $1.00.", visualType: "simple", image: "💰", options: ["True", "False"], correct: "True", hint: "Yes!", enemy: "⚖️" },
             { id: 9, text: "You have 75¢. You spend 25¢ on a kite. What is left?", visualType: "subtraction", start: "75¢", minus: "25¢", options: ["100¢", "50¢", "25¢"], correct: "50¢", hint: "75 - 25", enemy: "🪁" },
-            // Level 4: Butterfly Bush
+            // Level 4
             { id: 10, text: "Which is the correct way to write fifty cents?", visualType: "text-only", options: ["$0.50", "0.50¢", "$50"], correct: "$0.50", hint: "$ in front", enemy: "✍️" },
             { id: 11, text: "Finish the pattern counting by 10s: 10, 20, 30... what is next?", visualType: "simple", image: "🦋", options: ["35", "40", "50"], correct: "40", hint: "+10", enemy: "🔢" },
             { id: 12, text: "Garden Quest: Gloves are 15¢ and a spade is 5¢. Total cost?", visualType: "items", items: ["🧤 15¢", "🥄 5¢"], options: ["20¢", "10¢", "25¢"], correct: "20¢", hint: "15 + 5", enemy: "🧤" },
-            // Level 5: Rainbow Hill
+            // Level 5
             { id: 13, text: "How many quarters do you need to make exactly $1.00?", visualType: "coins", coins: ["quarter", "quarter", "quarter", "quarter"], options: ["2", "3", "4"], correct: "4", hint: "4 quarters", enemy: "🪙" },
             { id: 14, text: "You had 90¢, but you lost a dime. How much do you have now?", visualType: "subtraction", start: "90¢", minus: "10¢", options: ["80¢", "100¢", "85¢"], correct: "80¢", hint: "90 - 10", enemy: "📉" },
             { id: 15, text: "Big Blossom Challenge! Do 2 quarters and 5 dimes equal $1.00?", visualType: "coins", coins: ["quarter", "quarter", "dime", "dime", "dime", "dime", "dime"], options: ["Yes", "No"], correct: "Yes", hint: "50 + 50", enemy: "🌻" }
         ];
 
         const Coin = ({ type, onClick, small }) => {
-            const sizeClass = small ? (type === 'quarter' ? 'w-10 h-10' : 'w-8 h-8') : (type === 'quarter' ? 'w-16 h-16' : type === 'dime' ? 'w-10 h-10' : 'w-12 h-12');
+            const sizeClass = small ? (type === 'quarter' ? 'w-10 h-10' : 'w-8 h-8') : (type === 'quarter' ? 'w-16 h-16' : type === 'dime' ? 'w-12 h-12' : 'w-14 h-14');
             const styles = {
                 penny: "bg-orange-700 border-orange-900 text-orange-100",
                 nickel: "bg-gray-400 border-gray-600 text-white",
@@ -182,7 +191,7 @@
             };
             const labels = { penny: "1¢", nickel: "5¢", dime: "10¢", quarter: "25¢" };
             return (
-                <div onClick={onClick} className={`${styles[type]} ${sizeClass} rounded-full border-4 flex items-center justify-center font-bold m-1 transform hover:scale-110 active:scale-90 transition-all cursor-pointer select-none shadow-lg text-[10px] md:text-xs`}>
+                <div onClick={onClick} className={`${styles[type]} ${sizeClass} rounded-full border-4 flex items-center justify-center font-bold m-1 transform hover:scale-110 active:scale-90 transition-all cursor-pointer select-none shadow-lg text-[10px] md:text-sm`}>
                     {labels[type]}
                 </div>
             );
@@ -196,8 +205,8 @@
             return (
                 <div className="bg-white border-4 border-green-600 p-4 w-full h-full rounded-lg shadow-xl">
                     <div className="flex justify-between items-center mb-2 border-b-2 border-green-200 pb-2">
-                        <h3 className="text-green-700 text-xs md:text-sm uppercase tracking-widest">🎒 Backpack</h3>
-                        <button onClick={clearAll} className="text-[10px] bg-red-500 text-white px-2 py-1 rounded hover:bg-red-400 pixel-btn">RESET</button>
+                        <h3 className="text-green-700 text-sm md:text-base uppercase tracking-widest font-bold">🎒 Backpack</h3>
+                        <button onClick={clearAll} className="text-xs bg-red-500 text-white px-3 py-2 rounded hover:bg-red-400 pixel-btn">RESET</button>
                     </div>
                     <div className="flex justify-center gap-2 mb-4 bg-green-50 p-2 rounded border-2 border-green-200">
                         <Coin type="penny" small onClick={() => addCoin('penny')} />
@@ -206,7 +215,7 @@
                         <Coin type="quarter" small onClick={() => addCoin('quarter')} />
                     </div>
                     <div className="min-h-[200px] bg-green-50 rounded border-2 border-dashed border-green-300 p-2 flex flex-wrap content-start items-start coin-scroll">
-                        {workspaceCoins.length === 0 && <span className="w-full text-center text-green-700 text-[10px] mt-8">Items go here...</span>}
+                        {workspaceCoins.length === 0 && <span className="w-full text-center text-green-700 text-xs mt-8">Items go here...</span>}
                         {workspaceCoins.map((c) => <Coin key={c.id} type={c.type} small onClick={() => removeCoin(c.id)} />)}
                     </div>
                 </div>
@@ -383,13 +392,13 @@
             if (gameState === 'start') {
                 return (
                     <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-                        <h1 className="text-3xl md:text-5xl text-pink-600 mb-8 drop-shadow-md">SPRING MONEY MADNESS</h1>
-                        <p className="text-gray-700 mb-8 text-xs md:text-sm max-w-md">Pick your character to explore the Spring Garden!</p>
+                        <h1 className="text-3xl md:text-5xl text-pink-600 mb-8 drop-shadow-md font-bold text-outline text-white">SPRING MONEY MADNESS</h1>
+                        <p className="text-gray-800 mb-8 text-sm md:text-base max-w-md font-bold">Pick your character to explore the Spring Garden!</p>
                         <div className="flex gap-4 flex-wrap justify-center">
                             {characters.map(c => (
-                                <button key={c.id} onClick={() => startGame(c)} className={`flex flex-col items-center justify-center w-32 h-40 ${c.color} border-4 border-white pixel-btn hover:scale-105 transition-transform rounded-xl`}>
-                                    <span className="text-4xl mb-2">{c.icon}</span>
-                                    <span className="text-xs uppercase text-white font-bold">{c.name}</span>
+                                <button key={c.id} onClick={() => startGame(c)} className={`flex flex-col items-center justify-center w-36 h-48 ${c.color} border-4 border-white pixel-btn hover:scale-105 transition-transform rounded-xl`}>
+                                    <span className="text-5xl mb-4">{c.icon}</span>
+                                    <span className="text-sm uppercase text-white font-bold text-outline">{c.name}</span>
                                 </button>
                             ))}
                         </div>
@@ -400,11 +409,11 @@
             if (gameState === 'levelIntro') {
                 return (
                      <div className={`flex flex-col items-center justify-center min-h-screen p-4 text-center ${currentLevelData.bg} transition-colors duration-1000`}>
-                        <h2 className="text-white text-lg mb-2 opacity-80">ENTERING LEVEL {currentLevelIdx + 1}</h2>
-                        <h1 className="text-4xl md:text-6xl text-white mb-6 drop-shadow-md">{currentLevelData.name}</h1>
-                        <div className="text-8xl mb-8 animate-bounce">{currentLevelData.icon}</div>
-                        <p className="text-white text-xs mb-8">Navigate the world to find 3 surprises!</p>
-                        <button onClick={enterMap} className="bg-white text-green-700 border-4 border-green-200 px-8 py-4 pixel-btn text-sm uppercase rounded-full font-bold">
+                        <h2 className="text-white text-xl mb-4 opacity-90 font-bold text-outline">ENTERING LEVEL {currentLevelIdx + 1}</h2>
+                        <h1 className="text-4xl md:text-6xl text-white mb-8 drop-shadow-md font-bold text-outline">{currentLevelData.name}</h1>
+                        <div className="text-9xl mb-8 animate-bounce">{currentLevelData.icon}</div>
+                        <p className="text-white text-sm mb-8 font-bold text-outline">Navigate the world to find 3 surprises!</p>
+                        <button onClick={enterMap} className="bg-white text-green-700 border-4 border-green-600 px-8 py-4 pixel-btn text-lg uppercase rounded-full font-bold shadow-lg">
                             ENTER MAZE
                         </button>
                     </div>
@@ -415,16 +424,16 @@
                 return (
                     <div className={`min-h-screen flex flex-col items-center py-2 px-2 ${currentLevelData.bg}`}>
                         {/* HUD */}
-                        <div className="w-full max-w-md mb-2 flex justify-between items-center bg-white bg-opacity-90 p-2 border-2 border-white rounded-lg shadow">
+                        <div className="w-full max-w-lg mb-2 flex justify-between items-center bg-white bg-opacity-95 p-3 border-4 border-green-600 rounded-xl shadow-lg">
                             <div className="text-left">
-                                <div className="text-[10px] text-gray-500">LEVEL {currentLevelIdx + 1}</div>
-                                <div className="text-xs text-green-700 font-bold">{currentLevelData.name}</div>
+                                <div className="text-xs text-gray-500 font-bold">LEVEL {currentLevelIdx + 1}</div>
+                                <div className="text-sm text-green-700 font-black">{currentLevelData.name}</div>
                             </div>
                             <div className="text-right">
-                                <div className="text-[10px] text-gray-500">TASKS</div>
-                                <div className="flex gap-1">
+                                <div className="text-xs text-gray-500 font-bold">TASKS</div>
+                                <div className="flex gap-2">
                                     {[0,1,2].map(i => (
-                                        <span key={i} className={`text-sm ${i < completedTasks ? 'text-green-500' : 'text-gray-300'}`}>
+                                        <span key={i} className={`text-xl ${i < completedTasks ? 'text-green-500' : 'text-gray-300'}`}>
                                             {i < completedTasks ? '🌸' : '⚪'}
                                         </span>
                                     ))}
@@ -433,7 +442,7 @@
                         </div>
                         
                         {/* MAZE GRID (BIGGER) */}
-                        <div className="relative bg-white border-4 border-white p-1 rounded-xl shadow-2xl overflow-auto max-w-full">
+                        <div className="relative bg-white border-4 border-white p-2 rounded-xl shadow-2xl overflow-auto max-w-full">
                             {grid.map((row, rowIndex) => (
                                 <div key={rowIndex} className="flex">
                                     {row.map((cell, colIndex) => {
@@ -444,10 +453,10 @@
                                         return (
                                             <div 
                                                 key={colIndex} 
-                                                className={`maze-cell flex-shrink-0 flex items-center justify-center rounded-sm m-[1px] ${isWall ? currentLevelData.wall : currentLevelData.path}`}
+                                                className={`maze-cell flex-shrink-0 flex items-center justify-center rounded-md m-[1px] ${isWall ? currentLevelData.wall : currentLevelData.path}`}
                                             >
-                                                {task && <span className="text-3xl animate-pulse">{task.enemy}</span>}
-                                                {isPlayer && <span className="text-3xl z-10">{character.icon}</span>}
+                                                {task && <span className="text-4xl animate-pulse drop-shadow-md">{task.enemy}</span>}
+                                                {isPlayer && <span className="text-4xl z-10 drop-shadow-md">{character.icon}</span>}
                                             </div>
                                         );
                                     })}
@@ -456,15 +465,15 @@
                         </div>
 
                         {/* CONTROLS (D-PAD) */}
-                        <div className="mt-4 grid grid-cols-3 gap-2">
+                        <div className="mt-4 grid grid-cols-3 gap-2 scale-110">
                             <div></div>
-                            <button onTouchStart={() => handleMove(0, -1)} onClick={() => handleMove(0, -1)} className="w-14 h-14 bg-white bg-opacity-50 border-b-4 border-gray-300 rounded-full flex items-center justify-center text-2xl active:bg-gray-200">⬆️</button>
+                            <button onTouchStart={() => handleMove(0, -1)} onClick={() => handleMove(0, -1)} className="w-16 h-16 bg-white border-b-4 border-gray-300 rounded-full flex items-center justify-center text-3xl active:bg-gray-200 shadow-md">⬆️</button>
                             <div></div>
-                            <button onTouchStart={() => handleMove(-1, 0)} onClick={() => handleMove(-1, 0)} className="w-14 h-14 bg-white bg-opacity-50 border-b-4 border-gray-300 rounded-full flex items-center justify-center text-2xl active:bg-gray-200">⬅️</button>
-                            <button onTouchStart={() => handleMove(0, 1)} onClick={() => handleMove(0, 1)} className="w-14 h-14 bg-white bg-opacity-50 border-b-4 border-gray-300 rounded-full flex items-center justify-center text-2xl active:bg-gray-200">⬇️</button>
-                            <button onTouchStart={() => handleMove(1, 0)} onClick={() => handleMove(1, 0)} className="w-14 h-14 bg-white bg-opacity-50 border-b-4 border-gray-300 rounded-full flex items-center justify-center text-2xl active:bg-gray-200">➡️</button>
+                            <button onTouchStart={() => handleMove(-1, 0)} onClick={() => handleMove(-1, 0)} className="w-16 h-16 bg-white border-b-4 border-gray-300 rounded-full flex items-center justify-center text-3xl active:bg-gray-200 shadow-md">⬅️</button>
+                            <button onTouchStart={() => handleMove(0, 1)} onClick={() => handleMove(0, 1)} className="w-16 h-16 bg-white border-b-4 border-gray-300 rounded-full flex items-center justify-center text-3xl active:bg-gray-200 shadow-md">⬇️</button>
+                            <button onTouchStart={() => handleMove(1, 0)} onClick={() => handleMove(1, 0)} className="w-16 h-16 bg-white border-b-4 border-gray-300 rounded-full flex items-center justify-center text-3xl active:bg-gray-200 shadow-md">➡️</button>
                         </div>
-                        <div className="text-[10px] text-gray-700 mt-2 font-bold bg-white bg-opacity-50 px-2 rounded">Use Arrow Keys or Buttons</div>
+                        <div className="text-xs text-gray-800 mt-4 font-bold bg-white bg-opacity-70 px-3 py-1 rounded-full shadow">Use Arrow Keys or Buttons</div>
                     </div>
                 );
             }
@@ -475,40 +484,40 @@
                 return (
                     <div className={`min-h-screen flex flex-col items-center py-4 px-4 max-w-6xl mx-auto ${shake ? 'animate-shake' : ''}`}>
                          {/* Header */}
-                         <div className="w-full flex justify-between items-center mb-6 bg-white p-3 border-4 border-green-200 rounded-xl shadow-lg">
+                         <div className="w-full flex justify-between items-center mb-6 bg-white p-4 border-4 border-green-500 rounded-xl shadow-lg">
                             <div className="flex items-center gap-4">
-                                <div className={`w-12 h-12 flex items-center justify-center text-2xl ${character.color} border-2 border-white rounded-full shadow`}>{character.icon}</div>
-                                <div className="flex flex-col text-left"><span className="text-[10px] text-gray-400">PLAYER</span><span className="text-xs text-green-700 font-bold">{character.name}</span></div>
+                                <div className={`w-14 h-14 flex items-center justify-center text-3xl ${character.color} border-2 border-white rounded-full shadow`}>{character.icon}</div>
+                                <div className="flex flex-col text-left"><span className="text-xs text-gray-500 font-bold">PLAYER</span><span className="text-sm text-green-700 font-black">{character.name}</span></div>
                             </div>
-                            <div className="flex flex-col text-right"><span className="text-[10px] text-yellow-500 font-bold">GOLD</span><span className="text-xl text-yellow-500 font-black">{gold}</span></div>
+                            <div className="flex flex-col text-right"><span className="text-xs text-yellow-600 font-bold">GOLD</span><span className="text-2xl text-yellow-500 font-black text-outline">{gold}</span></div>
                         </div>
 
                         <div className="flex flex-col md:flex-row gap-6 w-full items-start h-full">
-                            <div className="flex-1 w-full bg-white border-4 border-green-200 rounded-xl shadow-xl relative overflow-hidden">
-                                <div className="absolute top-2 right-2 flex gap-1"><span className="text-red-500 text-lg">{attempts === 0 ? '❤️❤️' : attempts === 1 ? '❤️🖤' : '🖤🖤'}</span></div>
-                                <div className={`p-6 border-b-4 border-green-100 ${currentLevelData.bg} text-center min-h-[120px] flex items-center justify-center`}>
-                                    <h2 className="text-xs md:text-sm leading-relaxed text-gray-800 font-bold bg-white bg-opacity-80 p-2 rounded">{currentTask.text}</h2>
+                            <div className="flex-1 w-full bg-white border-4 border-green-500 rounded-xl shadow-xl relative overflow-hidden">
+                                <div className="absolute top-3 right-3 flex gap-1"><span className="text-red-500 text-xl">{attempts === 0 ? '❤️❤️' : attempts === 1 ? '❤️🖤' : '🖤🖤'}</span></div>
+                                <div className={`p-8 border-b-4 border-green-200 ${currentLevelData.bg} text-center min-h-[140px] flex items-center justify-center`}>
+                                    <h2 className="text-sm md:text-lg leading-relaxed text-gray-900 font-bold bg-white bg-opacity-90 p-4 rounded-xl shadow-sm border-2 border-white">{currentTask.text}</h2>
                                 </div>
 
                                 <div className="p-8 flex flex-col items-center justify-center min-h-[220px] bg-green-50 relative">
                                     {currentTask.visualType === 'coins' && <div className="flex flex-wrap justify-center gap-4">{currentTask.coins.map((c, i) => <Coin key={i} type={c} />)}</div>}
-                                    {currentTask.visualType === 'subtraction' && (<div className="flex items-center text-xl md:text-3xl font-bold text-gray-700 gap-4"><div className="bg-white px-4 py-2 border-2 border-gray-300 rounded shadow-sm">{currentTask.start}</div><div className="text-red-400">-</div><div className="bg-white px-4 py-2 border-2 border-gray-300 rounded shadow-sm">{currentTask.minus}</div></div>)}
-                                    {currentTask.visualType === 'items' && <div className="flex gap-4 md:gap-8 text-3xl md:text-4xl">{currentTask.items.map((item, i) => <div key={i} className="flex flex-col items-center"><span>{item.split(' ')[0]}</span><span className="text-[10px] bg-gray-800 text-white px-2 rounded mt-2 border border-gray-500">{item.split(' ')[1]}</span></div>)}</div>}
-                                    {currentTask.visualType === 'simple' && <div className="text-6xl animate-bounce">{currentTask.image}</div>}
-                                    {currentTask.visualType === 'text-only' && <div className="text-6xl text-gray-300">?</div>}
+                                    {currentTask.visualType === 'subtraction' && (<div className="flex items-center text-2xl md:text-4xl font-black text-gray-700 gap-4"><div className="bg-white px-6 py-3 border-4 border-gray-300 rounded-xl shadow-sm">{currentTask.start}</div><div className="text-red-500">-</div><div className="bg-white px-6 py-3 border-4 border-gray-300 rounded-xl shadow-sm">{currentTask.minus}</div></div>)}
+                                    {currentTask.visualType === 'items' && <div className="flex gap-6 md:gap-10 text-4xl md:text-5xl">{currentTask.items.map((item, i) => <div key={i} className="flex flex-col items-center"><span>{item.split(' ')[0]}</span><span className="text-sm bg-gray-800 text-white px-3 py-1 rounded-full mt-2 border-2 border-gray-500 font-bold">{item.split(' ')[1]}</span></div>)}</div>}
+                                    {currentTask.visualType === 'simple' && <div className="text-7xl animate-bounce">{currentTask.image}</div>}
+                                    {currentTask.visualType === 'text-only' && <div className="text-8xl text-gray-300 font-black">?</div>}
                                     
-                                    {attempts === 1 && <div className="absolute bottom-2 left-0 right-0 text-center bg-yellow-100 text-yellow-800 py-1 text-[10px] border-t-2 border-yellow-300 animate-pulse font-bold">HINT: {currentTask.hint}</div>}
+                                    {attempts === 1 && <div className="absolute bottom-4 left-0 right-0 text-center bg-yellow-100 text-yellow-800 py-2 text-sm border-y-4 border-yellow-300 animate-pulse font-bold">HINT: {currentTask.hint}</div>}
                                 </div>
 
-                                <div className="p-4 bg-white grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="p-6 bg-gray-50 grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {currentTask.options.map((opt, i) => (
-                                        <button key={i} onClick={() => !disabledOptions.includes(opt) && handleAnswer(opt)} className={`py-4 border-b-4 rounded-lg text-xs md:text-sm pixel-btn transition-colors font-bold ${disabledOptions.includes(opt) ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200'}`} disabled={disabledOptions.includes(opt)}>
+                                        <button key={i} onClick={() => !disabledOptions.includes(opt) && handleAnswer(opt)} className={`py-6 border-b-8 rounded-xl text-sm md:text-lg pixel-btn transition-colors font-black ${disabledOptions.includes(opt) ? 'bg-gray-200 text-gray-400 border-gray-300' : 'bg-blue-100 text-blue-900 border-blue-300 hover:bg-blue-200'}`} disabled={disabledOptions.includes(opt)}>
                                             {opt}
                                         </button>
                                     ))}
                                 </div>
                             </div>
-                            <div className="w-full md:w-64 flex-shrink-0"><CoinWorkspace /></div>
+                            <div className="w-full md:w-80 flex-shrink-0"><CoinWorkspace /></div>
                         </div>
                     </div>
                 );
@@ -517,9 +526,9 @@
             if (gameState === 'levelOutro') {
                  return (
                      <div className={`flex flex-col items-center justify-center min-h-screen p-4 text-center bg-white`}>
-                        <h1 className="text-4xl text-green-500 mb-4">LEVEL COMPLETE!</h1>
-                        <p className="text-gray-600 mb-8">You cleared the area!</p>
-                        <button onClick={advanceLevel} className="bg-blue-500 text-white border-4 border-blue-200 px-8 py-4 pixel-btn text-sm uppercase rounded-full font-bold">NEXT LEVEL ➡</button>
+                        <h1 className="text-5xl text-green-500 mb-6 font-bold text-outline text-white drop-shadow-md">LEVEL COMPLETE!</h1>
+                        <p className="text-gray-600 mb-8 text-lg font-bold">You cleared the area!</p>
+                        <button onClick={advanceLevel} className="bg-blue-500 text-white border-4 border-blue-700 px-10 py-5 pixel-btn text-lg uppercase rounded-full font-bold shadow-xl">NEXT LEVEL ➡</button>
                     </div>
                 );
             }
@@ -527,12 +536,12 @@
             if (gameState === 'end') {
                 return (
                     <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-green-50">
-                        <h1 className="text-5xl mb-6 text-green-600 drop-shadow-sm">Spring Champion!</h1>
-                        <div className="bg-white p-8 border-4 border-green-200 mb-8 rounded-xl shadow-lg">
-                            <p className="text-yellow-500 text-2xl mb-2 font-bold">TOTAL GOLD</p>
-                            <p className="text-gray-800 text-4xl font-black">{gold}</p>
+                        <h1 className="text-5xl md:text-7xl mb-8 text-green-500 font-bold text-outline text-white drop-shadow-xl">Spring Champion!</h1>
+                        <div className="bg-white p-10 border-8 border-green-400 mb-10 rounded-2xl shadow-2xl">
+                            <p className="text-yellow-500 text-2xl mb-4 font-bold uppercase tracking-widest">Total Gold</p>
+                            <p className="text-gray-800 text-6xl font-black">{gold}</p>
                         </div>
-                        <button onClick={() => setGameState('start')} className="bg-green-500 text-white border-4 border-green-200 px-8 py-4 pixel-btn rounded-full font-bold">PLAY AGAIN</button>
+                        <button onClick={() => setGameState('start')} className="bg-green-500 text-white border-4 border-green-700 px-12 py-6 pixel-btn rounded-full font-bold text-xl shadow-lg hover:scale-105 transition-transform">PLAY AGAIN</button>
                     </div>
                 );
             }
